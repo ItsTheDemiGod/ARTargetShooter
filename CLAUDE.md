@@ -31,10 +31,18 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - Ask before deleting any file or running any command that changes things outside this project folder.
 
 ## Decisions
-(none yet)
+- Render pipeline: URP (Universal 3D template).
+- Input: new Input System only; legacy UnityEngine.Input is never used.
+- All scripts use namespace ARTargetShooter.
+- Folder structure: Assets/_Project/{Scripts/{Core,AR,Gameplay,UI},Prefabs,Materials,Audio,Art,Scenes}.
+- Git repo root is the Unity project folder (D:\ARTargetShooter\ARTargetShooter), where Assets/ lives.
 
 ## Changelog
 - **Phase 1** â€“ CLAUDE.md, .gitignore: created project notes and Unity ignore rules; git initialised on branch main.
+- **Phase 1** – Assets/_Project/** folders with .gitkeep: agreed folder structure.
+- **Phase 1** – Assets/_Project/Scripts/Core/ARSessionDebugOverlay.cs: OnGUI overlay (ARSession.state, smoothed FPS, device model) to verify AR on the phone. Requires the AR Foundation package to compile.
+- **Phase 1** – Assets/_Project/Scripts/Core/README.md: describes the Scripts subfolders.
+- **Phase 1** – CLAUDE.md: filled in Decisions and status.
 
 ## Current status / next phase
-Phase 1 in progress. Next: Phase 2 (only after the user confirms Phase 1 works on the phone).
+Phase 1 code done, waiting for user to configure Unity and test on phone. Next: Phase 2 (only after the user confirms).
