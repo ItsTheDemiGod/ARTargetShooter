@@ -1,0 +1,49 @@
+# Unity generated
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+
+# IDE
+.vs/
+.idea/
+.vscode/
+*.csproj
+*.sln
+*.slnx
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Builds
+*.apk
+*.aab
+*.unitypackage
+*.app
+*.log
+
+# Crashlytics / Gradle / misc
+sysinfo.txt
+/[Aa]ssets/Plugins/Android/*.androidlib/build/
+.gradle/
+ExportedObj/
+.consulo/
+crashlytics-build.properties
+/[Aa]ssets/[Ss]treamingAssets/aa.meta
+/[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# OS
+.DS_Store
+Thumbs.db
