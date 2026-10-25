@@ -14,8 +14,8 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 ## Phase plan
 0. Setup (done by user)
 1. Project foundation (done)
-2. **Environment detection  <-- CURRENT** (plane detection, visible planes, reticle, raycast)
-3. Target generation (prefabs, spawn on planes, floating motion, respawn)
+2. Environment detection (done) (plane detection, visible planes, reticle, raycast)
+3. **Target generation  <-- NEXT** (prefabs, spawn on planes, floating motion, respawn)
 4. Projectile and touch aiming (Rigidbody, tap to fire, gravity arc, optional swipe power)
 5. Hit detection and feedback (collisions, particles, score, sounds)
 6. Game loop and UI (start screen, timer, HUD, difficulty, game over/restart)
@@ -43,6 +43,7 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - Phase 2: touch via `UnityEngine.InputSystem.EnhancedTouch` (`Touch.onFingerDown`), enabled/disabled in OnEnable/OnDisable.
 - Phase 2: plane detection mode Horizontal + Vertical.
 - Phase 2: reticle and test marker are built at runtime from primitives (no prefab); materials use `Universal Render Pipeline/Unlit` with a fallback to the default primitive material.
+- Phase 2: `Shader.Find("Universal Render Pipeline/Unlit")` at first returned a stripped shader in the build (purple cubes). Adding URP Unlit and Lit to Always Included Shaders (Project Settings > Graphics) fixed it. Any future runtime-created material must use a shader that is included in the build, ideally a Material asset referenced from the scene or a prefab.
 
 ## Changelog
 - **Phase 1** – CLAUDE.md, .gitignore: created project notes and Unity ignore rules; git initialised on branch main.
@@ -57,6 +58,7 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - **Phase 2** – Scripts/AR/TapToPlaceTestMarker.cs (new): **temporary test tool**, to be removed or replaced in a later phase. Tap places a 5 cm cube at the reticle (max 20).
 - **Phase 2** – Scripts/Core/ARSessionDebugOverlay.cs (changed): also shows plane count and reticle pose validity ("n/a" if missing).
 - **Phase 2** – Scripts/Core/README.md (changed): describes the AR scripts.
+- **Phase 2 (verified)** – Unity wiring, verified on device (planes, reticle "valid pose", tap-placed cubes, FPS ~30): AR Default Plane prefab (Assets/_Project/Prefabs) assigned to ARPlaneManager (Horizontal + Vertical); ARRaycastManager and PlaneDetectionController on XR Origin; Reticle object with PlacementReticle; TapTestMarker object with TapToPlaceTestMarker; Universal Render Pipeline Unlit and Lit added to Always Included Shaders (ProjectSettings/GraphicsSettings.asset). Files: Main.unity, AR Default Plane.prefab, script .meta files, GraphicsSettings.asset.
 
 ## Current status / next phase
-Phase 2 code done, waiting for user to wire up in Unity and test on phone. Next: Phase 3 (only after the user confirms).
+Phase 2 complete and verified on device. Ready for Phase 3: Target generation. Waiting for user to say go.
