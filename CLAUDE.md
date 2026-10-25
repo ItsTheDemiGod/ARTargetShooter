@@ -18,8 +18,8 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 3. Target generation (done) (prefabs, spawn on planes, floating motion, respawn)
 4. Projectile and touch aiming (done) (Rigidbody, tap to fire, gravity arc, optional swipe power)
 5. Hit detection and feedback (done) (collisions, particles, score, sounds)
-6. **Game loop and UI  <-- CURRENT** (start screen, timer, HUD, difficulty, game over/restart)
-7. Polish and delivery (bug fixes, performance, final APK, demo video, report notes)
+6. Game loop and UI (done) (start screen, timer, HUD, difficulty, game over/restart)
+7. **Polish and delivery  <-- NEXT** (bug fixes, performance, final APK, demo video, report notes)
 
 ## Working rules
 - Work only on the current phase. Never start the next phase on your own.
@@ -78,6 +78,12 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - Phase 6: UI is TextMeshPro on a Canvas with an EventSystem using `InputSystemUIInputModule` (never StandaloneInputModule), laid out inside `Screen.safeArea`. HUD texts have raycast target off so taps still shoot. Portrait orientation is locked via ARTargetShooter > Lock Portrait Orientation.
 - Phase 6: best score stored in PlayerPrefs key `ARTargetShooter.BestScore`.
 - Phase 6: `ARSessionDebugOverlay.DebugVisible` defaults to false, so the debug text only appears in debug mode.
+- Phase 7 requirements (planned, NOT done yet):
+  - Hide the reticle ring on the GameOver and Menu states unless debug mode is on (it is currently visible on the game over screen).
+  - Handle app pause and resume mid-round, and camera permission denied (show a clear message instead of a black screen).
+  - Cleanup candidates that need the user's approval before deleting: SampleScene in the build list, TutorialInfo, the TapTestMarker object and script, the unused Sentis package (com.unity.ai.inference) and other unused template packages.
+  - Set app name, package ID, icon, version number, and build a release APK.
+  - Check Hard difficulty performance and consider the debug button overlapping with shooting in the bottom-left corner.
 
 ## Changelog
 - **Phase 1** – CLAUDE.md, .gitignore: created project notes and Unity ignore rules; git initialised on branch main.
@@ -128,6 +134,7 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - **Phase 6** – Scripts/AR/PlacementReticle.cs (changed): added `SetActive(bool)`.
 - **Phase 6** – Scripts/Core/ARSessionDebugOverlay.cs (changed): added `DebugVisible` (default false).
 - **Phase 6** – Scripts/Core/README.md (changed).
+- **Phase 6 (verified)** – Unity wiring, verified on device (menu shows Ready once a plane is found, Start enabled, difficulty buttons work, 60 s round with score and timer, game over shows Final Score 205, Hits 16, Accuracy 80%, Best Score 205 and New best, Play Again works): TextMeshPro Essentials imported (Assets/TextMesh Pro); ARTargetShooter > Create Game UI run (GameCanvas, EventSystem with InputSystemUIInputModule, GameManager); portrait orientation locked (ProjectSettings.asset); GameManager references checked; TargetSpawner Auto Start unticked. Files: Main.unity, ProjectSettings.asset, Assets/TextMesh Pro/**, script .meta files.
 
 ## Current status / next phase
-Phase 6 code done, waiting for user to build the UI and wire up in Unity and test on phone. Next: Phase 7 (only after the user confirms).
+Phase 6 complete and verified on device. Ready for Phase 7: Polish and delivery. Waiting for user to say go.
