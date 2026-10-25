@@ -15,7 +15,7 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 0. Setup (done by user)
 1. Project foundation (done)
 2. Environment detection (done) (plane detection, visible planes, reticle, raycast)
-3. **Target generation  <-- NEXT** (prefabs, spawn on planes, floating motion, respawn)
+3. **Target generation  <-- CURRENT** (prefabs, spawn on planes, floating motion, respawn)
 4. Projectile and touch aiming (Rigidbody, tap to fire, gravity arc, optional swipe power)
 5. Hit detection and feedback (collisions, particles, score, sounds)
 6. Game loop and UI (start screen, timer, HUD, difficulty, game over/restart)
@@ -44,6 +44,10 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - Phase 2: plane detection mode Horizontal + Vertical.
 - Phase 2: reticle and test marker are built at runtime from primitives (no prefab); materials use `Universal Render Pipeline/Unlit` with a fallback to the default primitive material.
 - Phase 2: `Shader.Find("Universal Render Pipeline/Unlit")` at first returned a stripped shader in the build (purple cubes). Adding URP Unlit and Lit to Always Included Shaders (Project Settings > Graphics) fixed it. Any future runtime-created material must use a shader that is included in the build, ideally a Material asset referenced from the scene or a prefab.
+- Phase 3: targets live in world space around the player (1.5-4 m from the camera) under a runtime "Targets" root, never parented to planes/trackables. A plane is only the start signal and a floor-height reference.
+- Phase 3: Target prefab and Material assets are built by an Editor script (ARTargetShooter > Create Target Prefab). No runtime Shader.Find; runtime code only uses Material assets referenced from prefabs/serialized fields.
+- Phase 3: physics layer "Target" for targets. `Target.Despawn(bool wasHit)` is the hook Phase 5 calls on a projectile hit.
+- Phase 3: the user must disable the TapTestMarker GameObject in Unity before Phase 4 (and during Phase 3 testing).
 
 ## Changelog
 - **Phase 1** – CLAUDE.md, .gitignore: created project notes and Unity ignore rules; git initialised on branch main.
@@ -59,6 +63,12 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - **Phase 2** – Scripts/Core/ARSessionDebugOverlay.cs (changed): also shows plane count and reticle pose validity ("n/a" if missing).
 - **Phase 2** – Scripts/Core/README.md (changed): describes the AR scripts.
 - **Phase 2 (verified)** – Unity wiring, verified on device (planes, reticle "valid pose", tap-placed cubes, FPS ~30): AR Default Plane prefab (Assets/_Project/Prefabs) assigned to ARPlaneManager (Horizontal + Vertical); ARRaycastManager and PlaneDetectionController on XR Origin; Reticle object with PlacementReticle; TapTestMarker object with TapToPlaceTestMarker; Universal Render Pipeline Unlit and Lit added to Always Included Shaders (ProjectSettings/GraphicsSettings.asset). Files: Main.unity, AR Default Plane.prefab, script .meta files, GraphicsSettings.asset.
+- **Phase 3** – Scripts/Gameplay/Target.cs (new): floating bullseye (bob + figure-eight drift in world space), faces camera around Y, scale-in/out, lifetime, Initialize/Despawn(bool wasHit)/OnDespawned/IsAlive, sets "Target" layer.
+- **Phase 3** – Scripts/Gameplay/TargetSpawner.cs (new): spawns/respawns up to N targets around the camera, plane-count start signal, floor clamp from lowest HorizontalUp plane, separation check, public Start/Stop/ClearAll API and events.
+- **Phase 3** – Scripts/Editor/TargetPrefabBuilder.cs (new, Editor-only): creates the "Target" layer, Target_Red/White/Center materials, Target.prefab; plus a Verify Phase 3 Setup menu.
+- **Phase 3** – Scripts/Core/ARSessionDebugOverlay.cs (changed): added "Targets: n" line.
+- **Phase 3** – Scripts/AR/TapToPlaceTestMarker.cs (changed): comment about disabling it before Phase 4.
+- **Phase 3** – Scripts/Core/README.md (changed): Gameplay and Editor folders.
 
 ## Current status / next phase
-Phase 2 complete and verified on device. Ready for Phase 3: Target generation. Waiting for user to say go.
+Phase 3 code done, waiting for user to build the prefab and wire up in Unity and test on phone. Next: Phase 4 (only after the user confirms).

@@ -9,6 +9,8 @@ namespace ARTargetShooter
     /// <summary>
     /// TEMPORARY Phase 2 test tool: tap to drop a small cube at the reticle, proving that
     /// plane raycasting and touch input work. To be removed or replaced in a later phase.
+    /// Disable the TapTestMarker GameObject in Unity before Phase 4 so taps fire projectiles
+    /// instead of placing cubes (and untick it during Phase 3 testing).
     /// </summary>
     public class TapToPlaceTestMarker : MonoBehaviour
     {

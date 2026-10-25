@@ -19,6 +19,7 @@ namespace ARTargetShooter
         // Null-safe: the overlay still works when these components are missing ("n/a").
         private PlaneDetectionController planes;
         private PlacementReticle reticle;
+        private TargetSpawner spawner;
         private float nextLookup;
 
         private void Update()
@@ -27,9 +28,10 @@ namespace ARTargetShooter
             smoothedDelta = Mathf.Lerp(smoothedDelta, Time.unscaledDeltaTime, 0.1f);
 
             // Look up the AR scripts once per second until found; they may be absent from the scene.
-            if ((planes == null || reticle == null) && Time.unscaledTime >= nextLookup)
+            if ((planes == null || reticle == null || spawner == null) && Time.unscaledTime >= nextLookup)
             {
                 nextLookup = Time.unscaledTime + 1f;
+                if (spawner == null) spawner = FindFirstObjectByType<TargetSpawner>();
                 if (planes == null) planes = FindFirstObjectByType<PlaneDetectionController>();
                 if (reticle == null) reticle = FindFirstObjectByType<PlacementReticle>();
             }
@@ -49,10 +51,11 @@ namespace ARTargetShooter
             float fps = smoothedDelta > 0f ? 1f / smoothedDelta : 0f;
             string text = $"AR: {GetSessionState()}\nFPS: {fps:F0}\nDevice: {SystemInfo.deviceModel}"
                 + $"\nPlanes: {(planes != null ? planes.PlaneCount.ToString() : "n/a")}"
-                + $"\nReticle: {(reticle != null ? (reticle.HasValidPose ? "valid pose" : "no pose") : "n/a")}";
+                + $"\nReticle: {(reticle != null ? (reticle.HasValidPose ? "valid pose" : "no pose") : "n/a")}"
+                + $"\nTargets: {(spawner != null ? spawner.ActiveCount.ToString() : "n/a")}";
 
             float pad = size * 0.5f;
-            var rect = new Rect(pad, pad, Screen.width - pad * 2f, size * 7f);
+            var rect = new Rect(pad, pad, Screen.width - pad * 2f, size * 8f);
             GUI.Label(rect, text, style);
         }
 
