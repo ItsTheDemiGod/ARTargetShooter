@@ -1,0 +1,32 @@
+# Normalise line endings: store LF in the repo, never touch binaries.
+* text=auto
+
+# Source and Unity YAML text assets: always LF in the working tree too.
+*.cs text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.asmdef text eol=lf
+*.unity text eol=lf
+*.prefab text eol=lf
+*.mat text eol=lf
+*.asset text eol=lf
+*.meta text eol=lf
+*.controller text eol=lf
+*.anim text eol=lf
+*.inputactions text eol=lf
+
+# Binary assets.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.wav binary
+*.mp3 binary
+*.ogg binary
+*.ttf binary
+*.otf binary
+*.fbx binary
+*.dll binary
+*.so binary
+*.aar binary
+*.apk binary
+*.aab binary

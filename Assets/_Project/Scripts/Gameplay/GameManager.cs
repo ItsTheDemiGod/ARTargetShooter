@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ARTargetShooter
 {
-    public enum GameState { Menu, Playing, GameOver }
+    public enum GameState { Menu, Playing, GameOver, Paused }
 
     /// <summary>
     /// The game loop: Menu -> Playing -> GameOver -> (Play Again) -> Playing.
@@ -37,11 +37,20 @@ namespace ARTargetShooter
         public int SelectedDifficulty => selectedDifficulty;
         public bool DebugMode { get; private set; }
 
+        /// <summary>True while AR is unavailable (unsupported device, no camera permission): no play allowed.</summary>
+        public bool AvailabilityBlocked { get; private set; }
+
+        /// <summary>A paused round can resume only when AR is tracking again and a plane exists.</summary>
+        public bool CanResume => State == GameState.Paused && !AvailabilityBlocked &&
+                                 GetSessionState() == UnityEngine.XR.ARFoundation.ARSessionState.SessionTracking &&
+                                 planeController != null && planeController.PlaneCount >= 1;
+
         public event Action<GameState> OnStateChanged;
         public event Action<float> OnTimeChanged;
         public event Action<int, int, int, int, bool> OnGameOver;   // score, hits, accuracy %, best, newBest
         public event Action<bool> OnDebugModeChanged;
         public event Action<int> OnDifficultyChanged;
+        public event Action<bool> OnAvailabilityBlockedChanged;
 
         private int lastShownSecond = -1;
 
@@ -94,7 +103,7 @@ namespace ARTargetShooter
 
         public void StartGame()
         {
-            if (State == GameState.Playing) return;
+            if (State == GameState.Playing || AvailabilityBlocked) return;
             if (planeController == null || planeController.PlaneCount < 1)
             {
                 Debug.LogWarning("[GameManager] Cannot start: no plane detected yet.");
@@ -156,6 +165,59 @@ namespace ARTargetShooter
 
         public void PlayAgain() => StartGame();
 
+        /// <summary>
+        /// Called by ARAvailabilityMonitor. While blocked, firing is off and a round cannot start;
+        /// a running round is paused (and can only resume once AR works again).
+        /// </summary>
+        public void SetAvailabilityBlocked(bool blocked)
+        {
+            if (AvailabilityBlocked == blocked) return;
+            AvailabilityBlocked = blocked;
+            if (blocked)
+            {
+                if (shootingController != null) shootingController.SetFireEnabled(false);
+                if (State == GameState.Playing) PauseRound();
+            }
+            OnAvailabilityBlockedChanged?.Invoke(blocked);
+        }
+
+        // Android pause (Home, lock, call) and focus loss (notification shade, permission dialog).
+        private void OnApplicationPause(bool paused)
+        {
+            if (paused) PauseRound();
+        }
+
+        private void OnApplicationFocus(bool hasFocus)
+        {
+            if (!hasFocus) PauseRound();
+        }
+
+        /// <summary>Freeze a running round: stop spawning, clear targets, block firing/scoring. Score, shots and remaining time are kept.</summary>
+        public void PauseRound()
+        {
+            if (State != GameState.Playing) return;
+            if (scoreManager != null) scoreManager.SetScoringEnabled(false);
+            if (shootingController != null) shootingController.SetFireEnabled(false);
+            if (targetSpawner != null) { targetSpawner.StopSpawning(); targetSpawner.ClearAll(); }
+            SetState(GameState.Paused);   // the timer only runs in Playing, so it stops here
+        }
+
+        /// <summary>Continue a paused round with the saved time and difficulty. Score and shots are NOT reset.</summary>
+        public void ResumeRound()
+        {
+            if (!CanResume) return;
+            if (scoreManager != null) scoreManager.SetScoringEnabled(true);
+            if (shootingController != null) shootingController.SetFireEnabled(true);
+            SetState(GameState.Playing);
+            if (targetSpawner != null) targetSpawner.StartSpawning();
+        }
+
+        private static UnityEngine.XR.ARFoundation.ARSessionState GetSessionState()
+        {
+            try { return UnityEngine.XR.ARFoundation.ARSession.state; }
+            catch (Exception) { return UnityEngine.XR.ARFoundation.ARSessionState.None; }
+        }
+
         public void SetDebugMode(bool value)
         {
             DebugMode = value;
@@ -177,15 +239,15 @@ namespace ARTargetShooter
             OnStateChanged?.Invoke(next);
         }
 
-        // Debug visuals (planes, reticle ring, debug text) show in debug mode, and planes/reticle also show
-        // while not playing (so the player can see the scan). Detection itself always keeps running.
+        // Planes show outside Playing (and in debug mode); reticle ring and debug text are debug-only.
+        // Detection itself always keeps running.
         private void ApplyVisuals()
         {
             bool playing = State == GameState.Playing;
-            bool showWorldDebug = DebugMode || !playing;
 
-            if (planeController != null) planeController.SetPlanesVisible(showWorldDebug);
-            if (reticle != null) reticle.SetActive(showWorldDebug);
+            // Planes stay visible outside play as scan feedback; the reticle ring is debug-only everywhere.
+            if (planeController != null) planeController.SetPlanesVisible(DebugMode || !playing);
+            if (reticle != null) reticle.SetActive(DebugMode);
             if (debugOverlay != null) debugOverlay.DebugVisible = DebugMode;
         }
     }

@@ -22,6 +22,7 @@ namespace ARTargetShooter
         private TargetSpawner spawner;
         private ShootingController shooter;
         private ScoreManager score;
+        private HitEffects hitEffects;
         private float nextLookup;
 
         private void Update()
@@ -30,9 +31,10 @@ namespace ARTargetShooter
             smoothedDelta = Mathf.Lerp(smoothedDelta, Time.unscaledDeltaTime, 0.1f);
 
             // Look up the AR scripts once per second until found; they may be absent from the scene.
-            if ((planes == null || reticle == null || spawner == null || shooter == null || score == null) && Time.unscaledTime >= nextLookup)
+            if ((planes == null || reticle == null || spawner == null || shooter == null || score == null || hitEffects == null) && Time.unscaledTime >= nextLookup)
             {
                 nextLookup = Time.unscaledTime + 1f;
+                if (hitEffects == null) hitEffects = FindFirstObjectByType<HitEffects>();
                 if (score == null) score = FindFirstObjectByType<ScoreManager>();
                 if (shooter == null) shooter = FindFirstObjectByType<ShootingController>();
                 if (spawner == null) spawner = FindFirstObjectByType<TargetSpawner>();
@@ -62,6 +64,7 @@ namespace ARTargetShooter
                 + $"\nPlanes: {(planes != null ? planes.PlaneCount.ToString() : "n/a")}"
                 + $"\nReticle: {(reticle != null ? (reticle.HasValidPose ? "valid pose" : "no pose") : "n/a")}"
                 + $"\nTargets: {(spawner != null ? spawner.ActiveCount.ToString() : "n/a")}"
+                + $"\nBursts: {(hitEffects != null ? hitEffects.ActiveBursts.ToString() : "n/a")}"
                 + $"\nShots: {(shooter != null ? shooter.ShotsFired.ToString() : "n/a")}"
                 + $"\nScore: {(score != null ? score.Score.ToString() : "n/a")}"
                 + $"\nHits: {(score != null ? score.Hits.ToString() : "n/a")}"

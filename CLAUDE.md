@@ -19,7 +19,7 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 4. Projectile and touch aiming (done) (Rigidbody, tap to fire, gravity arc, optional swipe power)
 5. Hit detection and feedback (done) (collisions, particles, score, sounds)
 6. Game loop and UI (done) (start screen, timer, HUD, difficulty, game over/restart)
-7. **Polish and delivery  <-- NEXT** (bug fixes, performance, final APK, demo video, report notes)
+7. **Polish and delivery  <-- CURRENT (Part A code done, Part B cleanup pending approval)** (bug fixes, performance, final APK, demo video, report notes)
 
 ## Working rules
 - Work only on the current phase. Never start the next phase on your own.
@@ -84,6 +84,12 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
   - Cleanup candidates that need the user's approval before deleting: SampleScene in the build list, TutorialInfo, the TapTestMarker object and script, the unused Sentis package (com.unity.ai.inference) and other unused template packages.
   - Set app name, package ID, icon, version number, and build a release APK.
   - Check Hard difficulty performance and consider the debug button overlapping with shooting in the bottom-left corner.
+- Phase 7A: the reticle ring is hidden in every state unless debug mode is on. Planes stay visible in Menu, Paused and GameOver, hidden while Playing.
+- Phase 7A: `GameState.Paused`. App pause/focus loss during Playing stops spawning, clears targets, disables firing/scoring and keeps score, shots and remaining time. Resume needs `ARSession.state == SessionTracking` and PlaneCount >= 1, restarts spawning with the saved time and the same difficulty, and does not reset score or shots. No Time.timeScale.
+- Phase 7A: `ARAvailabilityMonitor` shows an error panel (Retry, optional Open Settings via an Android intent) for Unsupported, NeedsInstall (one install attempt) and a denied camera permission (Android only, 2 s grace period). While blocked, firing is off and the game cannot start (`GameManager.SetAvailabilityBlocked`).
+- Phase 7A: `ShootingController.SetIgnoreRect` keeps presses on the hidden debug button from firing; `GameUI` supplies the rect.
+- Phase 7A: `.gitattributes` with `text=auto`, LF for source and Unity YAML (no merge driver). `git add --renormalize` changed no existing files.
+- Phase 7A: release settings via ARTargetShooter > Apply Release Player Settings: "AR Target Shooter", company Demian, `com.demian.artargetshooter`, 1.0.0 (code 1), IL2CPP, ARM64, OpenGLES3 only, stripping Medium.
 
 ## Changelog
 - **Phase 1** – CLAUDE.md, .gitignore: created project notes and Unity ignore rules; git initialised on branch main.
@@ -135,6 +141,15 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - **Phase 6** – Scripts/Core/ARSessionDebugOverlay.cs (changed): added `DebugVisible` (default false).
 - **Phase 6** – Scripts/Core/README.md (changed).
 - **Phase 6 (verified)** – Unity wiring, verified on device (menu shows Ready once a plane is found, Start enabled, difficulty buttons work, 60 s round with score and timer, game over shows Final Score 205, Hits 16, Accuracy 80%, Best Score 205 and New best, Play Again works): TextMeshPro Essentials imported (Assets/TextMesh Pro); ARTargetShooter > Create Game UI run (GameCanvas, EventSystem with InputSystemUIInputModule, GameManager); portrait orientation locked (ProjectSettings.asset); GameManager references checked; TargetSpawner Auto Start unticked. Files: Main.unity, ProjectSettings.asset, Assets/TextMesh Pro/**, script .meta files.
+- **Phase 7A** – Scripts/Gameplay/GameManager.cs (changed): Paused state, pause/resume, availability block, reticle only in debug mode.
+- **Phase 7A** – Scripts/Core/ARAvailabilityMonitor.cs (new): AR/camera availability watcher with Retry and Open Settings.
+- **Phase 7A** – Scripts/UI/GameUI.cs (changed): Paused and Error panels, Resume polling, debug-button ignore rect.
+- **Phase 7A** – Scripts/Gameplay/ShootingController.cs (changed): `SetIgnoreRect`.
+- **Phase 7A** – Scripts/Gameplay/HitEffects.cs (changed): `ActiveBursts` property.
+- **Phase 7A** – Scripts/Core/ARSessionDebugOverlay.cs (changed): "Bursts: n" line (debug mode only).
+- **Phase 7A** – Scripts/Editor/Phase7Tools.cs (new, Editor-only): Add ARAvailabilityMonitor And Error UI, Apply Release Player Settings, Verify Phase 7 Setup.
+- **Phase 7A** – Scripts/Editor/GameUIBuilder.cs (changed): UI helper methods made internal for reuse.
+- **Phase 7A** – .gitattributes (new), Scripts/Core/README.md (changed).
 
 ## Current status / next phase
-Phase 6 complete and verified on device. Ready for Phase 7: Polish and delivery. Waiting for user to say go.
+Phase 7 Part A code done, waiting for user to wire up and test, then Part B cleanup approval.

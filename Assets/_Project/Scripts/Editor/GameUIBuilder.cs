@@ -19,8 +19,8 @@ namespace ARTargetShooter.EditorTools
         private const string CanvasName = "GameCanvas";
         private const string TmpSettingsPath = "Assets/TextMesh Pro/Resources/TMP Settings.asset";
 
-        private static readonly Color PanelColor = new Color(0.05f, 0.07f, 0.12f, 0.75f);
-        private static readonly Color ButtonColor = new Color(0.1f, 0.55f, 0.85f, 1f);
+        internal static readonly Color PanelColor = new Color(0.05f, 0.07f, 0.12f, 0.75f);
+        internal static readonly Color ButtonColor = new Color(0.1f, 0.55f, 0.85f, 1f);
 
         // ---- Create Game UI -----------------------------------------------------------------------------------
 
@@ -253,7 +253,7 @@ namespace ARTargetShooter.EditorTools
             return manager;
         }
 
-        private static void Set(SerializedObject so, string field, Object value)
+        internal static void Set(SerializedObject so, string field, Object value)
         {
             SerializedProperty p = so.FindProperty(field);
             if (p == null) { Debug.LogWarning($"[GameUIBuilder] Field '{field}' not found."); return; }
@@ -263,14 +263,14 @@ namespace ARTargetShooter.EditorTools
 
         // ---- UI construction helpers ---------------------------------------------------------------------------
 
-        private static RectTransform NewRect(string name, Transform parent)
+        internal static RectTransform NewRect(string name, Transform parent)
         {
             var go = new GameObject(name, typeof(RectTransform));
             go.transform.SetParent(parent, false);
             return (RectTransform)go.transform;
         }
 
-        private static void Stretch(RectTransform r)
+        internal static void Stretch(RectTransform r)
         {
             r.anchorMin = Vector2.zero;
             r.anchorMax = Vector2.one;
@@ -278,7 +278,7 @@ namespace ARTargetShooter.EditorTools
             r.offsetMax = Vector2.zero;
         }
 
-        private static void AnchorTo(RectTransform r, Vector2 min, Vector2 max, Vector2 position)
+        internal static void AnchorTo(RectTransform r, Vector2 min, Vector2 max, Vector2 position)
         {
             r.anchorMin = min;
             r.anchorMax = max;
@@ -286,7 +286,7 @@ namespace ARTargetShooter.EditorTools
             r.anchoredPosition = position;
         }
 
-        private static RectTransform NewPanel(string name, Transform parent, Color color)
+        internal static RectTransform NewPanel(string name, Transform parent, Color color)
         {
             RectTransform r = NewRect(name, parent);
             Stretch(r);
@@ -295,7 +295,7 @@ namespace ARTargetShooter.EditorTools
             return r;
         }
 
-        private static TMP_Text NewText(string name, Transform parent, string text, float size, Vector2 position, Vector2 dimensions)
+        internal static TMP_Text NewText(string name, Transform parent, string text, float size, Vector2 position, Vector2 dimensions)
         {
             RectTransform r = NewRect(name, parent);
             r.anchorMin = r.anchorMax = r.pivot = new Vector2(0.5f, 0.5f);
@@ -310,7 +310,7 @@ namespace ARTargetShooter.EditorTools
             return t;
         }
 
-        private static Button NewButton(string name, Transform parent, string label, float fontSize, Vector2 position, Vector2 dimensions)
+        internal static Button NewButton(string name, Transform parent, string label, float fontSize, Vector2 position, Vector2 dimensions)
         {
             RectTransform r = NewRect(name, parent);
             r.anchorMin = r.anchorMax = r.pivot = new Vector2(0.5f, 0.5f);

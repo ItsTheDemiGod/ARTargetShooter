@@ -19,6 +19,9 @@ namespace ARTargetShooter
         private readonly Queue<ParticleSystem> free = new Queue<ParticleSystem>();
         private readonly List<ParticleSystem> busy = new List<ParticleSystem>();
         private readonly List<float> busyUntil = new List<float>();   // parallel to busy: time each burst can be reused
+        /// <summary>Bursts currently playing (for the debug performance line).</summary>
+        public int ActiveBursts => busy.Count;
+
         private AudioSource audioSource;
         private Transform root;
 

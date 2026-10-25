@@ -42,9 +42,24 @@ namespace ARTargetShooter
         [SerializeField] private Button playAgainButton;
         [SerializeField] private Button menuButton;
 
+        [Header("Paused (app was backgrounded mid-round)")]
+        [SerializeField] private GameObject pausedPanel;
+        [SerializeField] private Button resumeButton;
+        [SerializeField] private Button pausedMenuButton;
+
+        [Header("AR error (unsupported / no camera permission)")]
+        [SerializeField] private ARAvailabilityMonitor availabilityMonitor;
+        [SerializeField] private GameObject errorPanel;
+        [SerializeField] private TMP_Text errorText;
+        [SerializeField] private Button retryButton;
+        [SerializeField] private Button openSettingsButton;   // optional
+
         [Header("Debug toggle (hidden long-press area)")]
         [SerializeField] private LongPressButton debugToggle;
 
+        private ShootingController shootingController;
+        private bool resumeKnown;
+        private bool lastCanResume;
         private int shownScore = -1;
         private int shownSecond = -1;
         private bool lastPlaneReady;
@@ -57,6 +72,8 @@ namespace ARTargetShooter
             if (gameManager == null) gameManager = FindFirstObjectByType<GameManager>();
             if (scoreManager == null) scoreManager = FindFirstObjectByType<ScoreManager>();
             if (planeController == null) planeController = FindFirstObjectByType<PlaneDetectionController>();
+            if (availabilityMonitor == null) availabilityMonitor = FindFirstObjectByType<ARAvailabilityMonitor>();
+            shootingController = FindFirstObjectByType<ShootingController>();
         }
 
         private void OnEnable()
@@ -68,7 +85,9 @@ namespace ARTargetShooter
                 gameManager.OnGameOver += HandleGameOver;
                 gameManager.OnDifficultyChanged += HandleDifficultyChanged;
                 gameManager.OnDebugModeChanged += HandleDebugModeChanged;
+                gameManager.OnAvailabilityBlockedChanged += HandleBlockedChanged;
             }
+            if (availabilityMonitor != null) availabilityMonitor.OnErrorChanged += HandleErrorChanged;
             if (scoreManager != null) scoreManager.OnScoreChanged += HandleScoreChanged;
             if (planeController != null) planeController.OnPlaneCountChanged += HandlePlaneCountChanged;
             if (debugToggle != null) debugToggle.OnLongPress += HandleDebugLongPress;
@@ -79,6 +98,10 @@ namespace ARTargetShooter
             AddListener(hardButton, () => SelectDifficulty(2));
             AddListener(playAgainButton, OnPlayAgainClicked);
             AddListener(menuButton, OnMenuClicked);
+            AddListener(resumeButton, OnResumeClicked);
+            AddListener(pausedMenuButton, OnMenuClicked);
+            AddListener(retryButton, OnRetryClicked);
+            AddListener(openSettingsButton, OnOpenSettingsClicked);
         }
 
         private void OnDisable()
@@ -90,7 +113,9 @@ namespace ARTargetShooter
                 gameManager.OnGameOver -= HandleGameOver;
                 gameManager.OnDifficultyChanged -= HandleDifficultyChanged;
                 gameManager.OnDebugModeChanged -= HandleDebugModeChanged;
+                gameManager.OnAvailabilityBlockedChanged -= HandleBlockedChanged;
             }
+            if (availabilityMonitor != null) availabilityMonitor.OnErrorChanged -= HandleErrorChanged;
             if (scoreManager != null) scoreManager.OnScoreChanged -= HandleScoreChanged;
             if (planeController != null) planeController.OnPlaneCountChanged -= HandlePlaneCountChanged;
             if (debugToggle != null) debugToggle.OnLongPress -= HandleDebugLongPress;
@@ -102,6 +127,10 @@ namespace ARTargetShooter
             RemoveAllListeners(hardButton);
             RemoveAllListeners(playAgainButton);
             RemoveAllListeners(menuButton);
+            RemoveAllListeners(resumeButton);
+            RemoveAllListeners(pausedMenuButton);
+            RemoveAllListeners(retryButton);
+            RemoveAllListeners(openSettingsButton);
         }
 
         private void Start()
@@ -112,6 +141,7 @@ namespace ARTargetShooter
             HandleDifficultyChanged(gameManager != null ? gameManager.SelectedDifficulty : 1);
             RefreshPlaneStatus();
             HandleScoreChanged(scoreManager != null ? scoreManager.Score : 0);
+            HandleErrorChanged(availabilityMonitor != null ? availabilityMonitor.CurrentError : null);
         }
 
         private void Update()
@@ -119,6 +149,18 @@ namespace ARTargetShooter
             // Re-apply the safe area if the screen size or cutout changes (e.g. rotation).
             if (Screen.safeArea != lastSafeArea || Screen.width != lastScreenSize.x || Screen.height != lastScreenSize.y)
                 ApplySafeArea();
+
+            // Resume is enabled only once AR tracks again and a plane exists (cheap flag check, text untouched).
+            if (resumeButton != null && gameManager != null && gameManager.State == GameState.Paused)
+            {
+                bool can = gameManager.CanResume;
+                if (!resumeKnown || can != lastCanResume)
+                {
+                    resumeKnown = true;
+                    lastCanResume = can;
+                    resumeButton.interactable = can;
+                }
+            }
         }
 
         // ---- Safe area -----------------------------------------------------------------------------------------
@@ -136,6 +178,18 @@ namespace ARTargetShooter
             safeAreaRoot.anchorMax = new Vector2(max.x / Screen.width, max.y / Screen.height);
             safeAreaRoot.offsetMin = Vector2.zero;
             safeAreaRoot.offsetMax = Vector2.zero;
+
+            UpdateShootingIgnoreRect();
+        }
+
+        // Tell the shooting code where the hidden debug button is (in screen pixels) so presses there never fire.
+        private void UpdateShootingIgnoreRect()
+        {
+            if (shootingController == null || debugToggle == null) return;
+            Canvas.ForceUpdateCanvases();   // make sure the new safe-area layout is applied first
+            var corners = new Vector3[4];
+            ((RectTransform)debugToggle.transform).GetWorldCorners(corners);   // overlay canvas: world == screen pixels
+            shootingController.SetIgnoreRect(Rect.MinMaxRect(corners[0].x, corners[0].y, corners[2].x, corners[2].y));
         }
 
         // ---- Game events -----------------------------------------------------------------------------------------
@@ -158,6 +212,8 @@ namespace ARTargetShooter
             if (menuPanel != null) menuPanel.SetActive(state == GameState.Menu);
             if (hudPanel != null) hudPanel.SetActive(state == GameState.Playing);
             if (gameOverPanel != null) gameOverPanel.SetActive(state == GameState.GameOver);
+            if (pausedPanel != null) pausedPanel.SetActive(state == GameState.Paused);
+            if (state == GameState.Paused) resumeKnown = false;   // re-evaluate the Resume button
         }
 
         private void HandleScoreChanged(int score)
@@ -208,6 +264,22 @@ namespace ARTargetShooter
 
         private void HandlePlaneCountChanged(int count) => RefreshPlaneStatus();
 
+        private void HandleBlockedChanged(bool blocked)
+        {
+            planeReadyKnown = false;   // force Start button re-evaluation
+            RefreshPlaneStatus();
+        }
+
+        // Full-screen message when AR cannot work; hidden again when the problem is gone.
+        private void HandleErrorChanged(string message)
+        {
+            bool show = !string.IsNullOrEmpty(message);
+            if (errorPanel != null) errorPanel.SetActive(show);
+            if (show && errorText != null) errorText.text = message;
+            // The settings button only makes sense for a permission problem.
+            if (openSettingsButton != null) openSettingsButton.gameObject.SetActive(show && message.Contains("permission"));
+        }
+
         private void RefreshPlaneStatus()
         {
             bool ready = planeController != null && planeController.PlaneCount >= 1;
@@ -215,7 +287,7 @@ namespace ARTargetShooter
             planeReadyKnown = true;
             lastPlaneReady = ready;
 
-            if (startButton != null) startButton.interactable = ready;
+            if (startButton != null) startButton.interactable = ready && !(gameManager != null && gameManager.AvailabilityBlocked);
             if (statusText != null) statusText.text = ready ? "Ready!" : "Scan a surface to begin";
         }
 
@@ -223,6 +295,9 @@ namespace ARTargetShooter
 
         private void OnStartClicked() { if (gameManager != null) gameManager.StartGame(); }
         private void OnPlayAgainClicked() { if (gameManager != null) gameManager.PlayAgain(); }
+        private void OnResumeClicked() { if (gameManager != null) gameManager.ResumeRound(); }
+        private void OnRetryClicked() { if (availabilityMonitor != null) availabilityMonitor.Retry(); }
+        private void OnOpenSettingsClicked() { if (availabilityMonitor != null) availabilityMonitor.OpenAppSettings(); }
         private void OnMenuClicked() { if (gameManager != null) gameManager.ReturnToMenu(); }
         private void SelectDifficulty(int index) { if (gameManager != null) gameManager.SetDifficulty(index); }
 

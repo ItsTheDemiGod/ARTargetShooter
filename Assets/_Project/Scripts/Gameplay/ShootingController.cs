@@ -43,6 +43,7 @@ namespace ARTargetShooter
         private float nextFireTime;
         private Finger chargingFinger;
         private float chargeStartTime;
+        private Rect ignoreRect;   // empty by default: contains nothing
 
         private void Awake()
         {
@@ -104,9 +105,12 @@ namespace ARTargetShooter
         /// <summary>Reset the shot counter at the start of a round (so Misses does not carry over).</summary>
         public void ResetShots() => ShotsFired = 0;
 
+        /// <summary>Touches that start inside this screen-pixel rectangle never fire (the hidden debug button).</summary>
+        public void SetIgnoreRect(Rect screenRect) => ignoreRect = screenRect;
+
         private void OnFingerDown(Finger finger)
         {
-            if (!fireEnabled || IsOverUI(finger)) return;
+            if (!fireEnabled || IsOverUI(finger) || ignoreRect.Contains(finger.screenPosition)) return;
 
             if (enableHoldToCharge)
             {
