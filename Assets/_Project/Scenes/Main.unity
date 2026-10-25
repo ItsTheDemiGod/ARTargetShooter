@@ -119,6 +119,65 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &279529283
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 279529285}
+  - component: {fileID: 279529284}
+  m_Layer: 0
+  m_Name: TargetSpawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &279529284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 279529283}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60dc576403db78241aa33a0af7c933fc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ARTargetShooter.TargetSpawner
+  targetPrefab: {fileID: 2995024957080158576, guid: c91c5e188208eda4086e08851b9d0897, type: 3}
+  arCamera: {fileID: 408636923}
+  planeController: {fileID: 2072857655}
+  maxActiveTargets: 5
+  respawnDelay: 1
+  targetLifetime: 20
+  requirePlaneToStart: 1
+  autoStart: 1
+  minDistance: 1.5
+  maxDistance: 4
+  minHeightOffset: -0.4
+  maxHeightOffset: 1.2
+  frontArcDegrees: 75
+  minTargetSeparation: 0.7
+  minHeightAboveFloor: 0.3
+--- !u!4 &279529285
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 279529283}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0, y: -0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &408636917
 GameObject:
   m_ObjectHideFlags: 0
@@ -683,7 +742,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1602470033
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -867,3 +926,4 @@ SceneRoots:
   - {fileID: 1862869267}
   - {fileID: 1580213529}
   - {fileID: 1602470034}
+  - {fileID: 279529285}

@@ -15,8 +15,8 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 0. Setup (done by user)
 1. Project foundation (done)
 2. Environment detection (done) (plane detection, visible planes, reticle, raycast)
-3. **Target generation  <-- CURRENT** (prefabs, spawn on planes, floating motion, respawn)
-4. Projectile and touch aiming (Rigidbody, tap to fire, gravity arc, optional swipe power)
+3. Target generation (done) (prefabs, spawn on planes, floating motion, respawn)
+4. **Projectile and touch aiming  <-- NEXT** (Rigidbody, tap to fire, gravity arc, optional swipe power)
 5. Hit detection and feedback (collisions, particles, score, sounds)
 6. Game loop and UI (start screen, timer, HUD, difficulty, game over/restart)
 7. Polish and delivery (bug fixes, performance, final APK, demo video, report notes)
@@ -48,6 +48,11 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - Phase 3: Target prefab and Material assets are built by an Editor script (ARTargetShooter > Create Target Prefab). No runtime Shader.Find; runtime code only uses Material assets referenced from prefabs/serialized fields.
 - Phase 3: physics layer "Target" for targets. `Target.Despawn(bool wasHit)` is the hook Phase 5 calls on a projectile hit.
 - Phase 3: the user must disable the TapTestMarker GameObject in Unity before Phase 4 (and during Phase 3 testing).
+- Targets float around the player in world space; a detected plane is only the start signal and floor reference.
+- TapTestMarker must stay disabled from now on.
+- The "Target" layer exists (layer 8). Phase 4 projectile and aim raycasts must use a layer mask that includes Target.
+- Check `Target.IsAlive` before scoring a hit (a target stays hittable while shrinking).
+- Projectiles should use Continuous Dynamic collision detection.
 
 ## Changelog
 - **Phase 1** – CLAUDE.md, .gitignore: created project notes and Unity ignore rules; git initialised on branch main.
@@ -69,6 +74,7 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - **Phase 3** – Scripts/Core/ARSessionDebugOverlay.cs (changed): added "Targets: n" line.
 - **Phase 3** – Scripts/AR/TapToPlaceTestMarker.cs (changed): comment about disabling it before Phase 4.
 - **Phase 3** – Scripts/Core/README.md (changed): Gameplay and Editor folders.
+- **Phase 3 (verified)** – Unity wiring, verified on device (targets spawn after the first plane, "Targets: 5", correct colours, floating, facing the player, respawning, FPS ~30): Target prefab and the three materials built via ARTargetShooter > Create Target Prefab; "Target" layer added (ProjectSettings/TagManager.asset); TargetSpawner object with Target Prefab, AR Camera (Main Camera under XR Origin) and Plane Controller (XR Origin) assigned; TapTestMarker object disabled. Files: Target.prefab, Target_Red/White/Center.mat, Main.unity, TagManager.asset, URPProjectSettings.asset (Unity auto-updated), script/folder .meta files.
 
 ## Current status / next phase
-Phase 3 code done, waiting for user to build the prefab and wire up in Unity and test on phone. Next: Phase 4 (only after the user confirms).
+Phase 3 complete and verified on device. Ready for Phase 4: Projectile and touch aiming. Waiting for user to say go.
