@@ -119,6 +119,65 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &221868667
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 221868669}
+  - component: {fileID: 221868668}
+  m_Layer: 0
+  m_Name: ShootingController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &221868668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 221868667}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49b1272879fcd424b84008a5ca9c6ff4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ARTargetShooter.ShootingController
+  arCamera: {fileID: 408636923}
+  projectilePrefab: {fileID: 7476561891813695597, guid: 5d43db72e4b9b2140b5bdb030438e584, type: 3}
+  targetMask:
+    serializedVersion: 2
+    m_Bits: 256
+  launchSpeed: 10
+  spawnForwardOffset: 0.15
+  aimUpwardAngle: 3
+  fireCooldown: 0.15
+  fireEnabled: 1
+  initialPoolSize: 10
+  enableHoldToCharge: 0
+  minSpeed: 7
+  maxSpeed: 16
+  maxChargeTime: 1
+--- !u!4 &221868669
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 221868667}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &279529283
 GameObject:
   m_ObjectHideFlags: 0
@@ -927,3 +986,4 @@ SceneRoots:
   - {fileID: 1580213529}
   - {fileID: 1602470034}
   - {fileID: 279529285}
+  - {fileID: 221868669}

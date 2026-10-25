@@ -16,8 +16,8 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 1. Project foundation (done)
 2. Environment detection (done) (plane detection, visible planes, reticle, raycast)
 3. Target generation (done) (prefabs, spawn on planes, floating motion, respawn)
-4. **Projectile and touch aiming  <-- CURRENT** (Rigidbody, tap to fire, gravity arc, optional swipe power)
-5. Hit detection and feedback (collisions, particles, score, sounds)
+4. Projectile and touch aiming (done) (Rigidbody, tap to fire, gravity arc, optional swipe power)
+5. **Hit detection and feedback  <-- NEXT** (collisions, particles, score, sounds)
 6. Game loop and UI (start screen, timer, HUD, difficulty, game over/restart)
 7. Polish and delivery (bug fixes, performance, final APK, demo video, report notes)
 
@@ -57,6 +57,9 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - Phase 4: projectiles are Rigidbodies with gravity, ContinuousDynamic collision plus a sphere-cast safety between FixedUpdate positions, pooled via ProjectilePool.
 - Phase 4: layer "Projectile"; the collision matrix makes projectiles ignore Default (AR planes), built-in layers and each other, but not Target. Projectile.Awake also calls Physics.IgnoreLayerCollision as a safety net.
 - Phase 4: hits are only logged ("Projectile hit target: name at X m"). Phase 5 hook point: `Projectile.OnHitTarget` event and `Target.Despawn(true)`. `Target.IsHittable` (alive and past 60% of scale-in) guards hits.
+- Phase 5 must subscribe to `Projectile.OnHitTarget` once per pooled projectile (not per shot), use the target's position for effects (the projectile is recycled right after the hit), re-check `Target.IsAlive` inside the handler, and call `Target.Despawn(true)`.
+- TapTestMarker stays disabled.
+- The hit log in Projectile.cs is `Debug.Log` only and is not visible on the phone screen.
 
 ## Changelog
 - **Phase 1** – CLAUDE.md, .gitignore: created project notes and Unity ignore rules; git initialised on branch main.
@@ -87,6 +90,7 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - **Phase 4** – Scripts/Gameplay/Target.cs (changed): added IsHittable only.
 - **Phase 4** – Scripts/Core/ARSessionDebugOverlay.cs (changed): added "Shots: n".
 - **Phase 4** – Scripts/Core/README.md (changed).
+- **Phase 4 (verified)** – Unity wiring, verified on device (tap fires arcing cyan projectiles, Shots count increments, projectiles ignore AR planes, no cubes on tap, FPS ~30): Projectile prefab and Projectile_Material built via ARTargetShooter > Create Projectile Prefab; "Projectile" layer added (layer 9); collision matrix saved in DynamicsManager.asset; ShootingController object with Projectile Prefab, AR Camera and Target Mask assigned. Files: Projectile.prefab, Projectile_Material.mat, Main.unity, TagManager.asset, DynamicsManager.asset, ProjectSettings.asset (Unity auto-updated), script .meta files.
 
 ## Current status / next phase
-Phase 4 code done, waiting for user to build the prefab and wire up in Unity and test on phone. Next: Phase 5 (only after the user confirms).
+Phase 4 complete and verified on device. Ready for Phase 5: Hit detection and feedback. Waiting for user to say go.
