@@ -21,6 +21,7 @@ namespace ARTargetShooter
         private PlacementReticle reticle;
         private TargetSpawner spawner;
         private ShootingController shooter;
+        private ScoreManager score;
         private float nextLookup;
 
         private void Update()
@@ -29,9 +30,10 @@ namespace ARTargetShooter
             smoothedDelta = Mathf.Lerp(smoothedDelta, Time.unscaledDeltaTime, 0.1f);
 
             // Look up the AR scripts once per second until found; they may be absent from the scene.
-            if ((planes == null || reticle == null || spawner == null || shooter == null) && Time.unscaledTime >= nextLookup)
+            if ((planes == null || reticle == null || spawner == null || shooter == null || score == null) && Time.unscaledTime >= nextLookup)
             {
                 nextLookup = Time.unscaledTime + 1f;
+                if (score == null) score = FindFirstObjectByType<ScoreManager>();
                 if (shooter == null) shooter = FindFirstObjectByType<ShootingController>();
                 if (spawner == null) spawner = FindFirstObjectByType<TargetSpawner>();
                 if (planes == null) planes = FindFirstObjectByType<PlaneDetectionController>();
@@ -55,11 +57,16 @@ namespace ARTargetShooter
                 + $"\nPlanes: {(planes != null ? planes.PlaneCount.ToString() : "n/a")}"
                 + $"\nReticle: {(reticle != null ? (reticle.HasValidPose ? "valid pose" : "no pose") : "n/a")}"
                 + $"\nTargets: {(spawner != null ? spawner.ActiveCount.ToString() : "n/a")}"
-                + $"\nShots: {(shooter != null ? shooter.ShotsFired.ToString() : "n/a")}";
+                + $"\nShots: {(shooter != null ? shooter.ShotsFired.ToString() : "n/a")}"
+                + $"\nScore: {(score != null ? score.Score.ToString() : "n/a")}"
+                + $"\nHits: {(score != null ? score.Hits.ToString() : "n/a")}"
+                + $"\nMisses: {(score != null ? score.Misses.ToString() : "n/a")}";
 
+            // Height comes from the actual text, so every line fits however many lines there are.
             float pad = size * 0.5f;
-            var rect = new Rect(pad, pad, Screen.width - pad * 2f, size * 9f);
-            GUI.Label(rect, text, style);
+            float width = Screen.width - pad * 2f;
+            float height = style.CalcHeight(new GUIContent(text), width);
+            GUI.Label(new Rect(pad, pad, width, height), text, style);
         }
 
         // ARSession.state is a static property; it can throw or be unavailable

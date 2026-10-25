@@ -17,6 +17,9 @@ namespace ARTargetShooter
         /// <summary>Raised once per shot when it hits a live, hittable target (Phase 5 hooks in here).</summary>
         public event Action<Projectile, Target> OnHitTarget;
 
+        /// <summary>World-space point where the last hit happened; set before OnHitTarget is raised.</summary>
+        public Vector3 LastHitPoint { get; private set; }
+
         private Rigidbody body;
         private float radius;
         private LayerMask targetMask;
@@ -90,22 +93,25 @@ namespace ARTargetShooter
                 Physics.SphereCast(previousPosition, radius, delta / dist, out RaycastHit hit, dist,
                                    targetMask, QueryTriggerInteraction.Ignore))
             {
-                TryRegisterHit(hit.collider);
+                TryRegisterHit(hit.collider, hit.point);
             }
             previousPosition = current;
         }
 
-        private void OnCollisionEnter(Collision collision) => TryRegisterHit(collision.collider);
-        private void OnTriggerEnter(Collider other) => TryRegisterHit(other);
+        private void OnCollisionEnter(Collision collision) =>
+            TryRegisterHit(collision.collider, collision.contactCount > 0 ? collision.GetContact(0).point : transform.position);
+        private void OnTriggerEnter(Collider other) =>
+            TryRegisterHit(other, other.ClosestPoint(transform.position));
 
         // Single entry point for all hit paths. Anything that is not a live, hittable Target is ignored.
-        private void TryRegisterHit(Collider other)
+        private void TryRegisterHit(Collider other, Vector3 hitPoint)
         {
             if (hasHit || other == null) return;
             Target target = other.GetComponentInParent<Target>();
             if (target == null || !target.IsHittable) return;
 
             hasHit = true;
+            LastHitPoint = hitPoint;
             float distance = Vector3.Distance(launchPoint, target.transform.position);
             Debug.Log($"Projectile hit target: {target.name} at {distance:F2} m");
             OnHitTarget?.Invoke(this, target);

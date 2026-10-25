@@ -33,7 +33,11 @@ namespace ARTargetShooter
 
         /// <summary>Raised after every shot.</summary>
         public event Action OnFired;
+        /// <summary>Raised when any projectile hits a live target. The projectile is recycled right after the handlers return.</summary>
+        public event Action<Projectile, Target> OnTargetHit;
         public int ShotsFired { get; private set; }
+
+        private readonly System.Collections.Generic.List<Projectile> subscribed = new System.Collections.Generic.List<Projectile>();
 
         private ProjectilePool pool;
         private float nextFireTime;
@@ -54,7 +58,30 @@ namespace ARTargetShooter
             }
 
             if (projectilePrefab == null) Debug.LogWarning("[ShootingController] No projectile prefab assigned.");
-            else pool = new ProjectilePool(projectilePrefab, initialPoolSize);
+            else
+            {
+                pool = new ProjectilePool(projectilePrefab);
+                // Subscribe before prewarming so every pooled projectile is hooked up exactly once.
+                pool.OnProjectileCreated += SubscribeToProjectile;
+                pool.Prewarm(initialPoolSize);
+            }
+        }
+
+        private void SubscribeToProjectile(Projectile p)
+        {
+            p.OnHitTarget += HandleProjectileHit;
+            subscribed.Add(p);
+        }
+
+        // Forward projectile hits so other systems (score, effects) listen to the controller only.
+        private void HandleProjectileHit(Projectile projectile, Target target) => OnTargetHit?.Invoke(projectile, target);
+
+        private void OnDestroy()
+        {
+            if (pool != null) pool.OnProjectileCreated -= SubscribeToProjectile;
+            foreach (Projectile p in subscribed)
+                if (p != null) p.OnHitTarget -= HandleProjectileHit;
+            subscribed.Clear();
         }
 
         private void OnEnable()

@@ -13,11 +13,19 @@ namespace ARTargetShooter
         private readonly Transform root;
         private readonly Queue<Projectile> free = new Queue<Projectile>();
 
-        public ProjectilePool(Projectile prefab, int initialSize)
+        /// <summary>Raised for every newly created projectile, before it is first used. Subscribe here once.</summary>
+        public event System.Action<Projectile> OnProjectileCreated;
+
+        public ProjectilePool(Projectile prefab)
         {
             this.prefab = prefab;
             // Own root at world origin, no parent (never under XR Origin).
             root = new GameObject("Projectiles").transform;
+        }
+
+        /// <summary>Create the initial projectiles. Called after subscribing to OnProjectileCreated.</summary>
+        public void Prewarm(int initialSize)
+        {
             for (int i = 0; i < initialSize; i++) Return(Create());
         }
 
@@ -43,6 +51,7 @@ namespace ARTargetShooter
         {
             Projectile p = Object.Instantiate(prefab, root);
             p.SetPool(this);
+            OnProjectileCreated?.Invoke(p);
             return p;
         }
     }
