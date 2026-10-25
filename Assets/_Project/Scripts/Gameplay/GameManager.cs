@@ -239,14 +239,14 @@ namespace ARTargetShooter
             OnStateChanged?.Invoke(next);
         }
 
-        // Planes show outside Playing (and in debug mode); reticle ring and debug text are debug-only.
+        // Planes show in Menu and Paused (and in debug mode); reticle ring and debug text are debug-only.
         // Detection itself always keeps running.
         private void ApplyVisuals()
         {
-            bool playing = State == GameState.Playing;
+            // Planes are scan feedback: visible only in Menu and Paused. The reticle ring is debug-only everywhere.
+            bool scanning = State == GameState.Menu || State == GameState.Paused;
 
-            // Planes stay visible outside play as scan feedback; the reticle ring is debug-only everywhere.
-            if (planeController != null) planeController.SetPlanesVisible(DebugMode || !playing);
+            if (planeController != null) planeController.SetPlanesVisible(DebugMode || scanning);
             if (reticle != null) reticle.SetActive(DebugMode);
             if (debugOverlay != null) debugOverlay.DebugVisible = DebugMode;
         }

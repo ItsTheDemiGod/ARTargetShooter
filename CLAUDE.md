@@ -84,7 +84,7 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
   - Cleanup candidates that need the user's approval before deleting: SampleScene in the build list, TutorialInfo, the TapTestMarker object and script, the unused Sentis package (com.unity.ai.inference) and other unused template packages.
   - Set app name, package ID, icon, version number, and build a release APK.
   - Check Hard difficulty performance and consider the debug button overlapping with shooting in the bottom-left corner.
-- Phase 7A: the reticle ring is hidden in every state unless debug mode is on. Planes stay visible in Menu, Paused and GameOver, hidden while Playing.
+- Phase 7A: the reticle ring is hidden in every state unless debug mode is on. Planes are visible only in Menu and Paused (scan feedback), hidden in Playing and GameOver unless debug mode is on; plane detection always keeps running.
 - Phase 7A: `GameState.Paused`. App pause/focus loss during Playing stops spawning, clears targets, disables firing/scoring and keeps score, shots and remaining time. Resume needs `ARSession.state == SessionTracking` and PlaneCount >= 1, restarts spawning with the saved time and the same difficulty, and does not reset score or shots. No Time.timeScale.
 - Phase 7A: `ARAvailabilityMonitor` shows an error panel (Retry, optional Open Settings via an Android intent) for Unsupported, NeedsInstall (one install attempt) and a denied camera permission (Android only, 2 s grace period). While blocked, firing is off and the game cannot start (`GameManager.SetAvailabilityBlocked`).
 - Phase 7A: `ShootingController.SetIgnoreRect` keeps presses on the hidden debug button from firing; `GameUI` supplies the rect.
@@ -150,6 +150,7 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - **Phase 7A** – Scripts/Editor/Phase7Tools.cs (new, Editor-only): Add ARAvailabilityMonitor And Error UI, Apply Release Player Settings, Verify Phase 7 Setup.
 - **Phase 7A** – Scripts/Editor/GameUIBuilder.cs (changed): UI helper methods made internal for reuse.
 - **Phase 7A** – .gitattributes (new), Scripts/Core/README.md (changed).
+- **Phase 7A** – Scripts/Gameplay/GameManager.cs (changed): `ApplyVisuals` now hides the planes in GameOver unless debug mode is on (follow-up).
 
 ## Current status / next phase
 Phase 7 Part A code done, waiting for user to wire up and test, then Part B cleanup approval.
