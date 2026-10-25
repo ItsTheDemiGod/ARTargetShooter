@@ -20,6 +20,7 @@ namespace ARTargetShooter
         private PlaneDetectionController planes;
         private PlacementReticle reticle;
         private TargetSpawner spawner;
+        private ShootingController shooter;
         private float nextLookup;
 
         private void Update()
@@ -28,9 +29,10 @@ namespace ARTargetShooter
             smoothedDelta = Mathf.Lerp(smoothedDelta, Time.unscaledDeltaTime, 0.1f);
 
             // Look up the AR scripts once per second until found; they may be absent from the scene.
-            if ((planes == null || reticle == null || spawner == null) && Time.unscaledTime >= nextLookup)
+            if ((planes == null || reticle == null || spawner == null || shooter == null) && Time.unscaledTime >= nextLookup)
             {
                 nextLookup = Time.unscaledTime + 1f;
+                if (shooter == null) shooter = FindFirstObjectByType<ShootingController>();
                 if (spawner == null) spawner = FindFirstObjectByType<TargetSpawner>();
                 if (planes == null) planes = FindFirstObjectByType<PlaneDetectionController>();
                 if (reticle == null) reticle = FindFirstObjectByType<PlacementReticle>();
@@ -52,10 +54,11 @@ namespace ARTargetShooter
             string text = $"AR: {GetSessionState()}\nFPS: {fps:F0}\nDevice: {SystemInfo.deviceModel}"
                 + $"\nPlanes: {(planes != null ? planes.PlaneCount.ToString() : "n/a")}"
                 + $"\nReticle: {(reticle != null ? (reticle.HasValidPose ? "valid pose" : "no pose") : "n/a")}"
-                + $"\nTargets: {(spawner != null ? spawner.ActiveCount.ToString() : "n/a")}";
+                + $"\nTargets: {(spawner != null ? spawner.ActiveCount.ToString() : "n/a")}"
+                + $"\nShots: {(shooter != null ? shooter.ShotsFired.ToString() : "n/a")}";
 
             float pad = size * 0.5f;
-            var rect = new Rect(pad, pad, Screen.width - pad * 2f, size * 8f);
+            var rect = new Rect(pad, pad, Screen.width - pad * 2f, size * 9f);
             GUI.Label(rect, text, style);
         }
 

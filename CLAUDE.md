@@ -16,7 +16,7 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 1. Project foundation (done)
 2. Environment detection (done) (plane detection, visible planes, reticle, raycast)
 3. Target generation (done) (prefabs, spawn on planes, floating motion, respawn)
-4. **Projectile and touch aiming  <-- NEXT** (Rigidbody, tap to fire, gravity arc, optional swipe power)
+4. **Projectile and touch aiming  <-- CURRENT** (Rigidbody, tap to fire, gravity arc, optional swipe power)
 5. Hit detection and feedback (collisions, particles, score, sounds)
 6. Game loop and UI (start screen, timer, HUD, difficulty, game over/restart)
 7. Polish and delivery (bug fixes, performance, final APK, demo video, report notes)
@@ -53,6 +53,10 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - The "Target" layer exists (layer 8). Phase 4 projectile and aim raycasts must use a layer mask that includes Target.
 - Check `Target.IsAlive` before scoring a hit (a target stays hittable while shrinking).
 - Projectiles should use Continuous Dynamic collision detection.
+- Phase 4: new input scripts must use `TouchInputService.Acquire()/Release()` (reference-counted EnhancedTouch) instead of calling EnhancedTouchSupport directly.
+- Phase 4: projectiles are Rigidbodies with gravity, ContinuousDynamic collision plus a sphere-cast safety between FixedUpdate positions, pooled via ProjectilePool.
+- Phase 4: layer "Projectile"; the collision matrix makes projectiles ignore Default (AR planes), built-in layers and each other, but not Target. Projectile.Awake also calls Physics.IgnoreLayerCollision as a safety net.
+- Phase 4: hits are only logged ("Projectile hit target: name at X m"). Phase 5 hook point: `Projectile.OnHitTarget` event and `Target.Despawn(true)`. `Target.IsHittable` (alive and past 60% of scale-in) guards hits.
 
 ## Changelog
 - **Phase 1** – CLAUDE.md, .gitignore: created project notes and Unity ignore rules; git initialised on branch main.
@@ -75,6 +79,14 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - **Phase 3** – Scripts/AR/TapToPlaceTestMarker.cs (changed): comment about disabling it before Phase 4.
 - **Phase 3** – Scripts/Core/README.md (changed): Gameplay and Editor folders.
 - **Phase 3 (verified)** – Unity wiring, verified on device (targets spawn after the first plane, "Targets: 5", correct colours, floating, facing the player, respawning, FPS ~30): Target prefab and the three materials built via ARTargetShooter > Create Target Prefab; "Target" layer added (ProjectSettings/TagManager.asset); TargetSpawner object with Target Prefab, AR Camera (Main Camera under XR Origin) and Plane Controller (XR Origin) assigned; TapTestMarker object disabled. Files: Target.prefab, Target_Red/White/Center.mat, Main.unity, TagManager.asset, URPProjectSettings.asset (Unity auto-updated), script/folder .meta files.
+- **Phase 4** – Scripts/Core/TouchInputService.cs (new): reference-counted EnhancedTouchSupport enable/disable.
+- **Phase 4** – Scripts/Gameplay/Projectile.cs (new): ballistic Rigidbody projectile, lifetime/distance limit, sphere-cast + collision hit detection, one hit per shot, OnHitTarget event.
+- **Phase 4** – Scripts/Gameplay/ProjectilePool.cs (new): Queue-based pool under a runtime "Projectiles" root.
+- **Phase 4** – Scripts/Gameplay/ShootingController.cs (new): tap to fire toward the touch point, gravity-compensation angle, cooldown, optional hold-to-charge, ShotsFired/OnFired/SetFireEnabled, "Fire Test Shot" context menu.
+- **Phase 4** – Scripts/Editor/ProjectileSetupBuilder.cs (new, Editor-only): creates the Projectile layer, Projectile_Material, Projectile.prefab and the collision rules; Verify Phase 4 Setup menu.
+- **Phase 4** – Scripts/Gameplay/Target.cs (changed): added IsHittable only.
+- **Phase 4** – Scripts/Core/ARSessionDebugOverlay.cs (changed): added "Shots: n".
+- **Phase 4** – Scripts/Core/README.md (changed).
 
 ## Current status / next phase
-Phase 3 complete and verified on device. Ready for Phase 4: Projectile and touch aiming. Waiting for user to say go.
+Phase 4 code done, waiting for user to build the prefab and wire up in Unity and test on phone. Next: Phase 5 (only after the user confirms).

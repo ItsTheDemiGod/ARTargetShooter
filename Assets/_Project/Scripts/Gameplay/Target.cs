@@ -43,6 +43,12 @@ namespace ARTargetShooter
         /// <summary>False once the target is shrinking away (expired or hit).</summary>
         public bool IsAlive => state != State.ScalingOut;
 
+        /// <summary>
+        /// True when a projectile may hit this target: alive, and past ~60% of the scale-in animation
+        /// (so an almost invisible, just-spawned target cannot be hit).
+        /// </summary>
+        public bool IsHittable => IsAlive && (state != State.ScalingIn || age / scaleTime > 0.6f);
+
         private void Awake()
         {
             baseScale = transform.localScale;
