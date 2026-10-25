@@ -19,7 +19,7 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 4. Projectile and touch aiming (done) (Rigidbody, tap to fire, gravity arc, optional swipe power)
 5. Hit detection and feedback (done) (collisions, particles, score, sounds)
 6. Game loop and UI (done) (start screen, timer, HUD, difficulty, game over/restart)
-7. **Polish and delivery  <-- CURRENT (Part A code done, Part B cleanup pending approval)** (bug fixes, performance, final APK, demo video, report notes)
+7. **Polish and delivery  <-- CURRENT (Part B cleanup done; release build pending)** (bug fixes, performance, final APK, demo video, report notes)
 
 ## Working rules
 - Work only on the current phase. Never start the next phase on your own.
@@ -90,6 +90,8 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - Phase 7A: `ShootingController.SetIgnoreRect` keeps presses on the hidden debug button from firing; `GameUI` supplies the rect.
 - Phase 7A: `.gitattributes` with `text=auto`, LF for source and Unity YAML (no merge driver). `git add --renormalize` changed no existing files.
 - Phase 7A: release settings via ARTargetShooter > Apply Release Player Settings: "AR Target Shooter", company Demian, `com.demian.artargetshooter`, 1.0.0 (code 1), IL2CPP, ARM64, OpenGLES3 only, stripping Medium.
+- Phase 7B: planes on the GameOver screen. The code hides them there unless debug mode is on (commit 63e1a1e). If they still show on the phone, the tested build may predate that commit; verify in the release build. Treat a remaining sighting as a known cosmetic item.
+- Phase 7B: TapToPlaceTestMarker and its scene object are gone for good; do not re-add them.
 
 ## Changelog
 - **Phase 1** – CLAUDE.md, .gitignore: created project notes and Unity ignore rules; git initialised on branch main.
@@ -152,6 +154,10 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - **Phase 7A** – .gitattributes (new), Scripts/Core/README.md (changed).
 - **Phase 7A** – Scripts/Gameplay/GameManager.cs (changed): `ApplyVisuals` now hides the planes in GameOver unless debug mode is on (follow-up).
 - **Phase 7A** – Note: commit 63e1a1e also contains the Unity-generated Phase 7A wiring: Main.unity (Paused panel, Error panel and ARAvailabilityMonitor object), the release Player Settings in ProjectSettings/ProjectSettings.asset, and the .meta files for ARAvailabilityMonitor and Phase7Tools.
+- **Phase 7B** – Deleted (user-approved): Assets/_Project/Scripts/AR/TapToPlaceTestMarker.cs (+ .meta); Assets/Scenes/ (SampleScene.unity + .meta, then the empty folder + Scenes.meta); Assets/TutorialInfo/ (whole folder + .meta); Assets/Readme.asset (+ .meta). Kept: Assets/InputSystem_Actions.inputactions, Assets/Settings, Assets/XR, Assets/TextMesh Pro, everything else in Assets/_Project.
+- **Phase 7B** – User did in Unity: deleted the TapTestMarker scene object and saved Main.unity; removed SampleScene from the Scene List; removed unused packages in Package Manager. Packages gone from Packages/manifest.json (read-only check, not edited by Claude): com.unity.ai.navigation, com.unity.multiplayer.center, com.unity.timeline, com.unity.visualscripting. Still present: com.unity.ai.assistant, com.unity.ai.inference, com.unity.collab-proxy, com.unity.ide.rider, com.unity.ide.visualstudio, com.unity.xr.mock-hmd.
+- **Phase 7B** – ProjectSettings/ProjectSettings.asset: `templateDefaultScene` cleared (it pointed at the deleted SampleScene). Packages/manifest.json and packages-lock.json committed with the user's package removals.
+- **Phase 7B** – Scripts/Core/README.md: removed the TapToPlaceTestMarker mention.
 
 ## Current status / next phase
-Phase 7 Part A code done, waiting for user to wire up and test, then Part B cleanup approval.
+Phase 7 Part B cleanup done, waiting for user to open Unity, verify no errors, and build the release APK.
