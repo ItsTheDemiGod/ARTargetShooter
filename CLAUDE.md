@@ -36,6 +36,9 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - All scripts use namespace ARTargetShooter.
 - Folder structure: Assets/_Project/{Scripts/{Core,AR,Gameplay,UI},Prefabs,Materials,Audio,Art,Scenes}.
 - Git repo root is the Unity project folder (D:\ARTargetShooter\ARTargetShooter), where Assets/ lives.
+- Unity version: 6.3 LTS (6000.3.26f1). Test device: Samsung Galaxy S23 Ultra.
+- Graphics API: OpenGLES3 only (Vulkan removed) for AR background compatibility.
+- PC_Renderer is the renderer used by the active quality level on Android, so the AR Background Renderer Feature lives there.
 
 ## Changelog
 - **Phase 1** â€“ CLAUDE.md, .gitignore: created project notes and Unity ignore rules; git initialised on branch main.
@@ -43,6 +46,8 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - **Phase 1** – Assets/_Project/Scripts/Core/ARSessionDebugOverlay.cs: OnGUI overlay (ARSession.state, smoothed FPS, device model) to verify AR on the phone. Requires the AR Foundation package to compile.
 - **Phase 1** – Assets/_Project/Scripts/Core/README.md: describes the Scripts subfolders.
 - **Phase 1** – CLAUDE.md: filled in Decisions and status.
+- **Phase 1 (verified)** – Unity configuration, verified on device: AR Foundation and Google ARCore XR Plugin installed; Input System set as the active input handler; Android platform; OpenGLES3 only; IL2CPP; ARM64 only; ARCore enabled in XR Plug-in Management; AR Background Renderer Feature added to PC_Renderer; scene Assets/_Project/Scenes/Main.unity with AR Session, XR Origin (Mobile AR) and a DebugOverlay object using ARSessionDebugOverlay. Files: ProjectSettings/, Packages/manifest.json + packages-lock.json, Assets/Settings/, Assets/XR/, Main.unity and .meta files.
+- **Phase 1 (verified)** – .gitignore: added `.utmp/` (Android Gradle/CMake temp output).
 
 ## Current status / next phase
-Phase 1 code done, waiting for user to configure Unity and test on phone. Next: Phase 2 (only after the user confirms).
+Phase 1 complete and verified on device (SessionTracking). Ready for Phase 2: Environment detection. Waiting for user to say go.

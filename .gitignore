@@ -47,3 +47,6 @@ crashlytics-build.properties
 # OS
 .DS_Store
 Thumbs.db
+
+# Android Gradle/CMake temp output
+.utmp/
