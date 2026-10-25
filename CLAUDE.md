@@ -13,8 +13,8 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 
 ## Phase plan
 0. Setup (done by user)
-1. **Project foundation  <-- CURRENT**
-2. Environment detection (plane detection, visible planes, reticle, raycast)
+1. Project foundation (done)
+2. **Environment detection  <-- CURRENT** (plane detection, visible planes, reticle, raycast)
 3. Target generation (prefabs, spawn on planes, floating motion, respawn)
 4. Projectile and touch aiming (Rigidbody, tap to fire, gravity arc, optional swipe power)
 5. Hit detection and feedback (collisions, particles, score, sounds)
@@ -39,15 +39,24 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - Unity version: 6.3 LTS (6000.3.26f1). Test device: Samsung Galaxy S23 Ultra.
 - Graphics API: OpenGLES3 only (Vulkan removed) for AR background compatibility.
 - PC_Renderer is the renderer used by the active quality level on Android, so the AR Background Renderer Feature lives there.
+- Phase 2: AR Foundation 6 `ARPlaneManager.trackablesChanged` (never `planesChanged`); `ARRaycastManager` with `PlaneWithinPolygon`.
+- Phase 2: touch via `UnityEngine.InputSystem.EnhancedTouch` (`Touch.onFingerDown`), enabled/disabled in OnEnable/OnDisable.
+- Phase 2: plane detection mode Horizontal + Vertical.
+- Phase 2: reticle and test marker are built at runtime from primitives (no prefab); materials use `Universal Render Pipeline/Unlit` with a fallback to the default primitive material.
 
 ## Changelog
 - **Phase 1** – CLAUDE.md, .gitignore: created project notes and Unity ignore rules; git initialised on branch main.
-- **Phase 1** � Assets/_Project/** folders with .gitkeep: agreed folder structure.
-- **Phase 1** � Assets/_Project/Scripts/Core/ARSessionDebugOverlay.cs: OnGUI overlay (ARSession.state, smoothed FPS, device model) to verify AR on the phone. Requires the AR Foundation package to compile.
-- **Phase 1** � Assets/_Project/Scripts/Core/README.md: describes the Scripts subfolders.
-- **Phase 1** � CLAUDE.md: filled in Decisions and status.
-- **Phase 1 (verified)** � Unity configuration, verified on device: AR Foundation and Google ARCore XR Plugin installed; Input System set as the active input handler; Android platform; OpenGLES3 only; IL2CPP; ARM64 only; ARCore enabled in XR Plug-in Management; AR Background Renderer Feature added to PC_Renderer; scene Assets/_Project/Scenes/Main.unity with AR Session, XR Origin (Mobile AR) and a DebugOverlay object using ARSessionDebugOverlay. Files: ProjectSettings/, Packages/manifest.json + packages-lock.json, Assets/Settings/, Assets/XR/, Main.unity and .meta files.
-- **Phase 1 (verified)** � .gitignore: added `.utmp/` (Android Gradle/CMake temp output).
+- **Phase 1** – Assets/_Project/** folders with .gitkeep: agreed folder structure.
+- **Phase 1** – Assets/_Project/Scripts/Core/ARSessionDebugOverlay.cs: OnGUI overlay (ARSession.state, smoothed FPS, device model) to verify AR on the phone. Requires the AR Foundation package to compile.
+- **Phase 1** – Assets/_Project/Scripts/Core/README.md: describes the Scripts subfolders.
+- **Phase 1** – CLAUDE.md: filled in Decisions and status.
+- **Phase 1 (verified)** – Unity configuration, verified on device: AR Foundation and Google ARCore XR Plugin installed; Input System set as the active input handler; Android platform; OpenGLES3 only; IL2CPP; ARM64 only; ARCore enabled in XR Plug-in Management; AR Background Renderer Feature added to PC_Renderer; scene Assets/_Project/Scenes/Main.unity with AR Session, XR Origin (Mobile AR) and a DebugOverlay object using ARSessionDebugOverlay. Files: ProjectSettings/, Packages/manifest.json + packages-lock.json, Assets/Settings/, Assets/XR/, Main.unity and .meta files.
+- **Phase 1 (verified)** – .gitignore: added `.utmp/` (Android Gradle/CMake temp output).
+- **Phase 2** – Scripts/AR/PlaneDetectionController.cs (new): sets Horizontal+Vertical detection, counts planes via trackablesChanged, exposes PlaneCount / OnPlaneCountChanged / SetPlanesVisible / PlanesVisible.
+- **Phase 2** – Scripts/AR/PlacementReticle.cs (new): screen-centre plane raycast, reticle pose + HasValidPose/CurrentPose; runtime ring visual if none assigned.
+- **Phase 2** – Scripts/AR/TapToPlaceTestMarker.cs (new): **temporary test tool**, to be removed or replaced in a later phase. Tap places a 5 cm cube at the reticle (max 20).
+- **Phase 2** – Scripts/Core/ARSessionDebugOverlay.cs (changed): also shows plane count and reticle pose validity ("n/a" if missing).
+- **Phase 2** – Scripts/Core/README.md (changed): describes the AR scripts.
 
 ## Current status / next phase
-Phase 1 complete and verified on device (SessionTracking). Ready for Phase 2: Environment detection. Waiting for user to say go.
+Phase 2 code done, waiting for user to wire up in Unity and test on phone. Next: Phase 3 (only after the user confirms).

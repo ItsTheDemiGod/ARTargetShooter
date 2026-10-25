@@ -16,10 +16,23 @@ namespace ARTargetShooter
         private GUIStyle style;
         private int styleFontSize;
 
+        // Null-safe: the overlay still works when these components are missing ("n/a").
+        private PlaneDetectionController planes;
+        private PlacementReticle reticle;
+        private float nextLookup;
+
         private void Update()
         {
             // Exponential moving average of frame time; unscaled so it ignores timeScale.
             smoothedDelta = Mathf.Lerp(smoothedDelta, Time.unscaledDeltaTime, 0.1f);
+
+            // Look up the AR scripts once per second until found; they may be absent from the scene.
+            if ((planes == null || reticle == null) && Time.unscaledTime >= nextLookup)
+            {
+                nextLookup = Time.unscaledTime + 1f;
+                if (planes == null) planes = FindFirstObjectByType<PlaneDetectionController>();
+                if (reticle == null) reticle = FindFirstObjectByType<PlacementReticle>();
+            }
         }
 
         private void OnGUI()
@@ -34,10 +47,12 @@ namespace ARTargetShooter
             }
 
             float fps = smoothedDelta > 0f ? 1f / smoothedDelta : 0f;
-            string text = $"AR: {GetSessionState()}\nFPS: {fps:F0}\nDevice: {SystemInfo.deviceModel}";
+            string text = $"AR: {GetSessionState()}\nFPS: {fps:F0}\nDevice: {SystemInfo.deviceModel}"
+                + $"\nPlanes: {(planes != null ? planes.PlaneCount.ToString() : "n/a")}"
+                + $"\nReticle: {(reticle != null ? (reticle.HasValidPose ? "valid pose" : "no pose") : "n/a")}";
 
             float pad = size * 0.5f;
-            var rect = new Rect(pad, pad, Screen.width - pad * 2f, size * 5f);
+            var rect = new Rect(pad, pad, Screen.width - pad * 2f, size * 7f);
             GUI.Label(rect, text, style);
         }
 
