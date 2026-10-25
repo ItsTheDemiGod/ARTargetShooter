@@ -151,6 +151,7 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - **Phase 7A** – Scripts/Editor/GameUIBuilder.cs (changed): UI helper methods made internal for reuse.
 - **Phase 7A** – .gitattributes (new), Scripts/Core/README.md (changed).
 - **Phase 7A** – Scripts/Gameplay/GameManager.cs (changed): `ApplyVisuals` now hides the planes in GameOver unless debug mode is on (follow-up).
+- **Phase 7A** – Note: commit 63e1a1e also contains the Unity-generated Phase 7A wiring: Main.unity (Paused panel, Error panel and ARAvailabilityMonitor object), the release Player Settings in ProjectSettings/ProjectSettings.asset, and the .meta files for ARAvailabilityMonitor and Phase7Tools.
 
 ## Current status / next phase
 Phase 7 Part A code done, waiting for user to wire up and test, then Part B cleanup approval.
