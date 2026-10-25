@@ -41,8 +41,13 @@ namespace ARTargetShooter
             }
         }
 
+        /// <summary>Debug text is hidden unless the game manager's debug mode turns this on.</summary>
+        public bool DebugVisible { get; set; } = false;
+
         private void OnGUI()
         {
+            if (!DebugVisible) return;
+
             // Rebuild style only when the screen size (hence font size) changes.
             int size = Mathf.Max(12, Mathf.RoundToInt(Screen.height * fontHeightFraction));
             if (style == null || size != styleFontSize)

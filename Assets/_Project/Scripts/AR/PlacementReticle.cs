@@ -15,6 +15,8 @@ namespace ARTargetShooter
         [Tooltip("Optional. If empty, a ring reticle is built at runtime from primitives.")]
         [SerializeField] private GameObject reticleVisual;
 
+        private bool isActive = true;
+
         public bool HasValidPose { get; private set; }
         public Pose CurrentPose { get; private set; }
 
@@ -28,9 +30,18 @@ namespace ARTargetShooter
             reticleVisual.SetActive(false);
         }
 
+        /// <summary>Hide the ring and pause the per-frame raycast (HasValidPose becomes false) when false.</summary>
+        public void SetActive(bool active)
+        {
+            isActive = active;
+            if (active) return;
+            HasValidPose = false;
+            if (reticleVisual != null) reticleVisual.SetActive(false);
+        }
+
         private void Update()
         {
-            if (raycastManager == null) return;
+            if (!isActive || raycastManager == null) return;
 
             var centre = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
             // PlaneWithinPolygon: only hit points inside the detected plane's boundary.

@@ -101,6 +101,9 @@ namespace ARTargetShooter
 
         public void SetFireEnabled(bool value) => fireEnabled = value;
 
+        /// <summary>Reset the shot counter at the start of a round (so Misses does not carry over).</summary>
+        public void ResetShots() => ShotsFired = 0;
+
         private void OnFingerDown(Finger finger)
         {
             if (!fireEnabled || IsOverUI(finger)) return;

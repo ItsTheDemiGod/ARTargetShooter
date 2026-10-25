@@ -18,7 +18,7 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 3. Target generation (done) (prefabs, spawn on planes, floating motion, respawn)
 4. Projectile and touch aiming (done) (Rigidbody, tap to fire, gravity arc, optional swipe power)
 5. Hit detection and feedback (done) (collisions, particles, score, sounds)
-6. **Game loop and UI  <-- NEXT** (start screen, timer, HUD, difficulty, game over/restart)
+6. **Game loop and UI  <-- CURRENT** (start screen, timer, HUD, difficulty, game over/restart)
 7. Polish and delivery (bug fixes, performance, final APK, demo video, report notes)
 
 ## Working rules
@@ -71,6 +71,13 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
   - `TargetSpawner` needs `autoStart` turned off and public setters for difficulty (maxActiveTargets, target lifetime, respawn delay).
   - A real HUD (score, timer, start and restart buttons) needs a Canvas plus an EventSystem with the Input System UI module.
   - `ScoreManager.centreRadius` (currently 0.05) may be raised if centre hits feel too rare.
+- Phase 6: `GameManager` state machine Menu -> Playing -> GameOver (-> Play Again -> Playing, or Menu). No `Time.timeScale`: the game stops by stopping the spawner and disabling firing and scoring (`SetFireEnabled(false)`, `SetScoringEnabled(false)`).
+- Phase 6: scoring gate (`ScoreManager.SetScoringEnabled`); restart-safe spawner (`StopSpawning()` + `ClearAll()` before every start; `SetAutoStart(false)` set by GameManager in Awake).
+- Phase 6: difficulty presets via `TargetSpawner.ApplyDifficulty`: Easy (4, 25 s, 1.2 s), Normal (5, 20 s, 1.0 s), Hard (7, 12 s, 0.6 s). Round length 60 s.
+- Phase 6: debug mode (off by default) toggled by a 1 s long-press on a hidden 120x120 area at the bottom-left; it shows planes, the reticle ring and the debug overlay. Planes and reticle are visible on Menu/GameOver and hidden while Playing; plane detection always keeps running.
+- Phase 6: UI is TextMeshPro on a Canvas with an EventSystem using `InputSystemUIInputModule` (never StandaloneInputModule), laid out inside `Screen.safeArea`. HUD texts have raycast target off so taps still shoot. Portrait orientation is locked via ARTargetShooter > Lock Portrait Orientation.
+- Phase 6: best score stored in PlayerPrefs key `ARTargetShooter.BestScore`.
+- Phase 6: `ARSessionDebugOverlay.DebugVisible` defaults to false, so the debug text only appears in debug mode.
 
 ## Changelog
 - **Phase 1** – CLAUDE.md, .gitignore: created project notes and Unity ignore rules; git initialised on branch main.
@@ -111,6 +118,16 @@ Samsung Galaxy S23 Ultra (Android, ARCore supported).
 - **Phase 5** – Scripts/Core/ARSessionDebugOverlay.cs (changed): Score/Hits/Misses lines; label height computed from the text.
 - **Phase 5** – Scripts/Core/README.md (changed).
 - **Phase 5 (verified)** – Unity wiring, verified on device (shot targets despawn with burst and sound; overlay Score 90, Hits 6, Shots 9, Misses 3 = 4 normal hits x10 + 2 centre hits x25; expired targets do not score; FPS ~30): hit effects assets built via ARTargetShooter > Create Hit Effects Assets (HitParticle_Material, HitBurst.prefab, HitSound.wav, CentreHitSound.wav); ScoreManager object with Shooting Controller assigned; HitEffects object with Score Manager, HitBurst prefab, Hit Clip and Centre Hit Clip assigned. Files: Main.unity, the assets above, script .meta files.
+- **Phase 6** – Scripts/Gameplay/GameManager.cs (new): game state machine, 60 s timer, difficulty, best score, debug mode, visuals per state.
+- **Phase 6** – Scripts/UI/GameUI.cs (new): TMP menu/HUD/game-over panels, Start enabled only when a plane exists, safe area, red timer in the last 10 s.
+- **Phase 6** – Scripts/UI/LongPressButton.cs (new): 1 s long-press detector (needed as its own file so it can be attached as a component).
+- **Phase 6** – Scripts/Editor/GameUIBuilder.cs (new, Editor-only): Create Game UI, Lock Portrait Orientation, Verify Phase 6 Setup menus.
+- **Phase 6** – Scripts/Gameplay/ShootingController.cs (changed): added `ResetShots()`.
+- **Phase 6** – Scripts/Gameplay/TargetSpawner.cs (changed): added `SetAutoStart`, `ApplyDifficulty`.
+- **Phase 6** – Scripts/Gameplay/ScoreManager.cs (changed): added `SetScoringEnabled`, `GetAccuracyPercent`.
+- **Phase 6** – Scripts/AR/PlacementReticle.cs (changed): added `SetActive(bool)`.
+- **Phase 6** – Scripts/Core/ARSessionDebugOverlay.cs (changed): added `DebugVisible` (default false).
+- **Phase 6** – Scripts/Core/README.md (changed).
 
 ## Current status / next phase
-Phase 5 complete and verified on device. Ready for Phase 6: Game loop and UI. Waiting for user to say go.
+Phase 6 code done, waiting for user to build the UI and wire up in Unity and test on phone. Next: Phase 7 (only after the user confirms).

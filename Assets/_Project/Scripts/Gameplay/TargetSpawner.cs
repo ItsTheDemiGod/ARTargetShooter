@@ -83,6 +83,17 @@ namespace ARTargetShooter
             if (planeOk) StartSpawning();
         }
 
+        /// <summary>When false, spawning only starts through StartSpawning() (the game loop owns it).</summary>
+        public void SetAutoStart(bool value) => autoStart = value;
+
+        /// <summary>Difficulty preset. Targets already alive keep their old lifetime; only new spawns change.</summary>
+        public void ApplyDifficulty(int maxActive, float lifetime, float respawn)
+        {
+            maxActiveTargets = Mathf.Max(1, maxActive);
+            targetLifetime = lifetime;
+            respawnDelay = Mathf.Max(0f, respawn);
+        }
+
         [ContextMenu("Start Spawning")]
         public void StartSpawning()
         {
